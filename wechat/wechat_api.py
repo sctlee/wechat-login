@@ -19,7 +19,7 @@ def access_verify():
 
 
 @app.route('/weixin', methods=['POST'])
-def access_verify():
+def send_msg():
     if not __verification(request.values.get('signature', ''),
                       request.values.get('timestamp', ''), request.values.get('nonce', '')):
         abort(401)
@@ -28,7 +28,7 @@ def access_verify():
     request_data = request_xml.get('xml', {})
     event = request_data.get('Event').lower()
     if event not in ('subscribe', 'scan'):
-        return __generate_api_response(request_data,"您好！欢迎来到 DaoCloud ！您可以通过微信登录我们的网站：https://www.daocloud.io，点击右下角与我们实时联系。")
+        return __generate_api_response(request_data,"213123")
     scene_id = request_data.get('EventKey')
     open_id = request_data.get('FromUserName')
     if scene_id and scene_id.startswith('qrscene_'):
