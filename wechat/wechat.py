@@ -44,3 +44,11 @@ def get_weixin_qrcode_ticket(access_token, scene_id, expire_seconds):
     r = requests.post(url, params=params, headers=headers, data=json.dumps(data))
     r_json = json.loads(r.text)
     return r_json['ticket']
+
+
+def get_weixin_user_info(access_token, open_id):
+    url = "https://api.weixin.qq.com/cgi-bin/user/info"
+    params = {"access_token": access_token, "openid": open_id, "lang": "zh_CN"}
+    headers = {'Accept': 'application/json'}
+    r = requests.get(url, params=params, headers=headers)
+    return json.loads(r.text)
