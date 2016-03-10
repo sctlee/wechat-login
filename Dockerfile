@@ -11,4 +11,4 @@ COPY . /usr/src/app
 
 EXPOSE 5200
 
-CMD ["python", "app.py"]
+CMD ["python", "app_runner.py"]
