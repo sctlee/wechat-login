@@ -1,6 +1,6 @@
 from flask import Flask, Response, request
 
-from wechat import wechat_api
+import wechat.wechat_api
 
 app = Flask(__name__)
 
