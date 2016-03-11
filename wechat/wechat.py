@@ -3,6 +3,7 @@ from config import WEIXIN_APP_SECRET, WEIXIN_APP_ID, WEIXIN_API_URL
 import requests
 import time
 import logging
+import random
 
 LOG = logging.getLogger(__name__)
 
@@ -57,7 +58,7 @@ def get_weixin_user_info(access_token, open_id):
 
 
 def get_weixin_scene_id():
-    scene_id = len(scenes)
+    scene_id = len(scenes) * 10000000
     scenes.append({
         'scene_id': str(scene_id),
         'open_id': ''
@@ -73,3 +74,7 @@ def bind_weixin(scene_id, open_id):
         return True
     else:
         return False
+
+
+def __generate_scene_id():
+    return random.randrange(1, 1000000, 1)
