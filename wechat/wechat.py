@@ -58,7 +58,7 @@ def get_weixin_user_info(access_token, open_id):
 
 
 def get_weixin_scene_id():
-    scene_id = len(scenes) * 10000000
+    scene_id = __generate_scene_id()
     scenes.append({
         'scene_id': str(scene_id),
         'open_id': ''
@@ -77,4 +77,4 @@ def bind_weixin(scene_id, open_id):
 
 
 def __generate_scene_id():
-    return random.randrange(1, 1000000, 1)
+    return len(scenes) * 10000000 + random.randrange(1, 1000000, 1)
