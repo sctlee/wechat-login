@@ -56,6 +56,7 @@ def get_weixin_user_info(scene_id):
     open_id = filter_scenes and filter_scenes[0]['open_id']
     if open_id:
         user = _get_weixin_user_info(access_token, open_id)
+        user['open_id'] = open_id
         return user
     return None
 

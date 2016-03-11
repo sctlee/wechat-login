@@ -81,7 +81,7 @@ def check_login_status(scene_id):
     while timeout:
         user = get_weixin_user_info(scene_id)
         if user:
-            return Response(json.dumps({'user': user}), mimetype='application/json')
+            return Response(json.dumps({'user': user['user']['nickname'], 'open_id': user['open_id']}), mimetype='application/json')
         time.sleep(1)
         timeout -= 1
     abort(404)
