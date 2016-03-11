@@ -2,7 +2,7 @@ from app import app
 from flask import request, Response, abort
 import config
 import hashlib
-from wechat import get_weixin_qrcode_url, get_weixin_scene_id, bind_weixin
+from wechat import get_weixin_qrcode_url, get_weixin_scene_id, bind_weixin, get_weixin_user_info
 import time
 import xmltodict
 import json
@@ -73,6 +73,19 @@ def get_qrcode():
     scene_id = get_weixin_scene_id()
     url = get_weixin_qrcode_url(scene_id, 604800)
     return Response(json.dumps({'url': url, 'scene_id': scene_id}), mimetype='application/json')
+
+
+@app.route('/get_status/<scene_id>')
+def check_login_status(scene_id):
+    timeout = int(request.values.get('timeout'))
+    while timeout:
+        user = get_weixin_user_info(scene_id)
+        if user:
+            return Response(json.dumps({'user': user}), mimetype='application/json')
+        time.sleep(1)
+        timeout -= 1
+    abort(404)
+    # return Response(json.dumps({'name': user['name'], 'open_id': user['open_id']}), mimetype='application/json')
 
 
 def __verification(signature, timestamp, nonce):

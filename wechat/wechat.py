@@ -49,7 +49,18 @@ def get_weixin_qrcode_ticket(access_token, scene_id, expire_seconds):
     return r_json['ticket']
 
 
-def get_weixin_user_info(access_token, open_id):
+def get_weixin_user_info(scene_id):
+    access_token = get_weixin_access_token()
+    LOG.info('FETCH WEIXIN ACCESS TOKEN %s' % str(access_token))
+    filter_scenes = filter(lambda s: s['scene_id'] == scene_id, scenes)
+    open_id = filter_scenes and filter_scenes[0]['open_id']
+    if open_id:
+        user = _get_weixin_user_info(access_token, open_id)
+        return user
+    return None
+
+
+def _get_weixin_user_info(access_token, open_id):
     url = "https://api.weixin.qq.com/cgi-bin/user/info"
     params = {"access_token": access_token, "openid": open_id, "lang": "zh_CN"}
     headers = {'Accept': 'application/json'}
