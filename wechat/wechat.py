@@ -1,5 +1,5 @@
 import json
-from config import WEIXIN_APP_SECRET, WEIXIN_APP_ID,WEIXIN_API_URL
+from config import WEIXIN_APP_SECRET, WEIXIN_APP_ID, WEIXIN_API_URL
 import requests
 import time
 import logging
@@ -10,6 +10,8 @@ access_token = {
     'value': '',
     'expired_at': time.time()
 }
+
+scenes = []
 
 
 def get_weixin_access_token():
@@ -52,3 +54,22 @@ def get_weixin_user_info(access_token, open_id):
     headers = {'Accept': 'application/json'}
     r = requests.get(url, params=params, headers=headers)
     return json.loads(r.text)
+
+
+def get_weixin_scene_id():
+    scene_id = len(scenes)
+    scenes.append({
+        'scene_id': scene_id,
+        'open_id': ''
+    })
+    return scene_id
+
+
+def bind_weixin(scene_id, open_id):
+    filter_scenes = filter(lambda s: s['scene_id'] == scene_id, scenes)
+    scene = filter_scenes and filter_scenes[0]
+    if scene:
+        scene['open_id'] = open_id
+        return True
+    else:
+        return False

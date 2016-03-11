@@ -2,7 +2,7 @@ from app import app
 from flask import request, Response, abort
 import config
 import hashlib
-from wechat import get_weixin_qrcode_url
+from wechat import get_weixin_qrcode_url, get_weixin_scene_id, bind_weixin
 import time
 import xmltodict
 import json
@@ -34,7 +34,10 @@ def send_msg():
     if scene_id and scene_id.startswith('qrscene_'):
         scene_id = scene_id[len('qrscene_'):]
 
-    message = 'hahaha'
+    if not bind_weixin(scene_id, open_id):
+        return __generate_api_response(request_data, 'maybe failed')
+
+    message = scene_id
     return __generate_api_response(request_data, message)
 
 
@@ -67,8 +70,9 @@ def __generate_api_response(request_data, message):
 
 @app.route('/get_qrcode')
 def get_qrcode():
-    url = get_weixin_qrcode_url('hello', 604800)
-    return Response(url)
+    scene_id = get_weixin_scene_id()
+    url = get_weixin_qrcode_url(scene_id, 604800)
+    return Response(json.dumps({'url': url, 'scene_id': scene_id}), mimetype='application/json')
 
 
 def __verification(signature, timestamp, nonce):
