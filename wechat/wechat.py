@@ -59,7 +59,7 @@ def get_weixin_user_info(access_token, open_id):
 def get_weixin_scene_id():
     scene_id = len(scenes)
     scenes.append({
-        'scene_id': scene_id,
+        'scene_id': str(scene_id),
         'open_id': ''
     })
     return scene_id
