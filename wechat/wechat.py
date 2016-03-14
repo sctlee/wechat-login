@@ -1,5 +1,5 @@
 import json
-from config import WEIXIN_APP_SECRET, WEIXIN_APP_ID, WEIXIN_API_URL
+from config import WEIXIN_API_URL
 import requests
 import time
 import logging
@@ -7,7 +7,7 @@ import random
 
 LOG = logging.getLogger(__name__)
 
-access_token = {
+cache_access_token = {
     'value': '',
     'expired_at': time.time()
 }
@@ -15,24 +15,24 @@ access_token = {
 scenes = []
 
 
-def get_weixin_access_token():
-    if time.time() < access_token['expired_at']:
-        return access_token['value']
+def get_weixin_access_token(app_id, app_secret):
+    if time.time() < cache_access_token['expired_at']:
+        return cache_access_token['value']
 
     url = WEIXIN_API_URL + "/cgi-bin/token"
-    params = {"grant_type": "client_credential", "appid": WEIXIN_APP_ID, "secret": WEIXIN_APP_SECRET}
+    params = {"grant_type": "client_credential", "appid": app_id, "secret": app_secret}
     headers = {'Accept': 'application/json'}
     r = requests.get(url, params=params, headers=headers)
     r_json = json.loads(r.text)
 
-    access_token['value'] = r_json["access_token"]
-    access_token['expired_at'] = time.time() + 3600
+    cache_access_token['value'] = r_json["access_token"]
+    cache_access_token['expired_at'] = time.time() + 3600
 
-    return access_token['value']
+    return cache_access_token['value']
 
 
-def get_weixin_qrcode_url(scene_id, expire_seconds):
-    access_token = get_weixin_access_token()
+def get_weixin_qrcode_url(scene_id, expire_seconds, app_id, app_secret):
+    access_token = get_weixin_access_token(app_id, app_secret)
     LOG.info('FETCH WEIXIN ACCESS TOKEN %s scene_id %s' % (str(access_token), scene_id))
     ticket = get_weixin_qrcode_ticket(access_token, scene_id, expire_seconds)
     return "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=" + ticket
@@ -49,8 +49,8 @@ def get_weixin_qrcode_ticket(access_token, scene_id, expire_seconds):
     return r_json['ticket']
 
 
-def get_weixin_user_info(scene_id):
-    access_token = get_weixin_access_token()
+def get_weixin_user_info(scene_id, app_id, app_secret):
+    access_token = get_weixin_access_token(app_id, app_secret)
     LOG.info('FETCH WEIXIN ACCESS TOKEN %s' % str(access_token))
     filter_scenes = filter(lambda s: s['scene_id'] == scene_id, scenes)
     open_id = filter_scenes and filter_scenes[0]['open_id']

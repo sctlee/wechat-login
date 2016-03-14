@@ -9,6 +9,7 @@ import time
 import xmltodict
 import json
 import requests
+from functools import wraps
 
 
 @app.route('/weixin', methods=['GET'])
@@ -69,18 +70,32 @@ def __generate_api_response(request_data, message):
     return response.format(**response_value)
 
 
+def requires_app_auth(func):
+    @wraps(func)
+    def inner(*args, **kwargs):
+        app_id = request.headers.get('WEIXIN_APP_ID')
+        app_secret = request.headers.get('WEIXIN_APP_SECRET')
+        if app_id and app_secret:
+            return func(app_id, app_secret, *args, **kwargs)
+        abort(401)
+
+    return inner
+
+
 @app.route('/get_qrcode')
-def get_qrcode():
+@requires_app_auth
+def get_qrcode(app_id, app_secret):
     scene_id = get_weixin_scene_id()
-    url = get_weixin_qrcode_url(scene_id, 604800)
+    url = get_weixin_qrcode_url(scene_id, 604800, app_id, app_secret)
     return Response(json.dumps({'url': url, 'scene_id': scene_id}), mimetype='application/json')
 
 
 @app.route('/get_status/<scene_id>')
-def check_login_status(scene_id):
+@requires_app_auth
+def check_login_status(app_id, app_secret, scene_id):
     timeout = int(request.values.get('timeout'))
     while timeout:
-        user = get_weixin_user_info(scene_id)
+        user = get_weixin_user_info(scene_id, app_id, app_secret)
         if user:
             return Response(json.dumps({'username': user['nickname'], 'open_id': user['open_id']}), mimetype='application/json')
         time.sleep(1)
