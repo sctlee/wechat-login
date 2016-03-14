@@ -1,3 +1,5 @@
+# coding=utf8
+from __future__ import unicode_literals
 from app import app
 from flask import request, Response, abort
 import config
@@ -28,17 +30,16 @@ def send_msg():
     request_data = request_xml.get('xml', {})
     event = request_data.get('Event').lower()
     if event not in ('subscribe', 'scan'):
-        return __generate_api_response(request_data,"213123")
+        return __generate_api_response(request_data, '操作不符合要求')
     scene_id = request_data.get('EventKey')
     open_id = request_data.get('FromUserName')
     if scene_id and scene_id.startswith('qrscene_'):
         scene_id = scene_id[len('qrscene_'):]
 
     if not bind_weixin(scene_id, open_id):
-        return __generate_api_response(request_data, 'maybe failed')
+        return __generate_api_response(request_data, '登录失败')
 
-    message = scene_id
-    return __generate_api_response(request_data, message)
+    return __generate_api_response(request_data, '欢迎登录东风系统')
 
 
 def __generate_response(open_id, message):
