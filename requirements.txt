@@ -1,3 +1,4 @@
 requests
 Flask >= 0.10.1
 xmltodict
+gunicorn>=19.3.0
