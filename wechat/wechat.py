@@ -20,7 +20,7 @@ class SceneList(object):
         self._data = []
 
     def put(self, scene_id, open_id):
-        if len(self._data) >= 100:
+        if len(self._data) >= self.max:
             self._data.remove(self._data[0])
 
         self._data.append({'scene_id': scene_id, 'open_id': open_id})
@@ -28,7 +28,6 @@ class SceneList(object):
     def find_by_scene_id(self, scene_id):
         filter_scenes = filter(lambda s: s['scene_id'] == scene_id, self._data)
         scene = filter_scenes and filter_scenes[0]
-        self._data.remove(scene)
         return scene
 
     @property
