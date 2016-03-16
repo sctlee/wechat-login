@@ -95,7 +95,7 @@ def _get_weixin_user_info(access_token, open_id):
 
 def get_weixin_scene_id():
     scene_id = __generate_scene_id()
-    scenes.put(str(scene_id, ''))
+    scenes.put(str(scene_id), '')
     return scene_id
 
 
