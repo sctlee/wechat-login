@@ -11,4 +11,4 @@ COPY . /usr/src/app
 
 EXPOSE 5200
 
-CMD [ "gunicorn","--max-requests","3000","--access-logfile","-", "--error-logfile","-","-b","0.0.0.0:5200","app_runner:app"  ]
+CMD [ "gunicorn","-k","gevent","--max-requests","3000","--access-logfile","-", "--error-logfile","-","-b","0.0.0.0:5200","app_runner:app"  ]
