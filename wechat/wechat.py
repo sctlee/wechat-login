@@ -12,7 +12,31 @@ cache_access_token = {
     'expired_at': time.time()
 }
 
-scenes = []
+
+class SceneList(object):
+    max = 50
+
+    def __init__(self):
+        self._data = []
+
+    def put(self, scene_id, open_id):
+        if len(self._data) >= 100:
+            self._data.remove(self._data[0])
+
+        self._data.append({'scene_id': scene_id, 'open_id': open_id})
+
+    def find_by_scene_id(self, scene_id):
+        filter_scenes = filter(lambda s: s['scene_id'] == scene_id, self._data)
+        scene = filter_scenes and filter_scenes[0]
+        self._data.remove(scene)
+        return scene
+
+    @property
+    def count(self):
+        return len(self._data)
+
+
+scenes = SceneList()
 
 
 def get_weixin_access_token(app_id, app_secret):
@@ -52,8 +76,8 @@ def get_weixin_qrcode_ticket(access_token, scene_id, expire_seconds):
 def get_weixin_user_info(scene_id, app_id, app_secret):
     access_token = get_weixin_access_token(app_id, app_secret)
     LOG.info('FETCH WEIXIN ACCESS TOKEN %s' % str(access_token))
-    filter_scenes = filter(lambda s: s['scene_id'] == scene_id, scenes)
-    open_id = filter_scenes and filter_scenes[0]['open_id']
+    scene = scenes.find_by_scene_id(scene_id)
+    open_id = scene and scene['open_id']
     if open_id:
         user = _get_weixin_user_info(access_token, open_id)
         user['open_id'] = open_id
@@ -71,16 +95,12 @@ def _get_weixin_user_info(access_token, open_id):
 
 def get_weixin_scene_id():
     scene_id = __generate_scene_id()
-    scenes.append({
-        'scene_id': str(scene_id),
-        'open_id': ''
-    })
+    scenes.put(str(scene_id, ''))
     return scene_id
 
 
 def bind_weixin(scene_id, open_id):
-    filter_scenes = filter(lambda s: s['scene_id'] == scene_id, scenes)
-    scene = filter_scenes and filter_scenes[0]
+    scene = scenes.find_by_scene_id(scene_id)
     if scene:
         scene['open_id'] = open_id
         return True
@@ -89,4 +109,4 @@ def bind_weixin(scene_id, open_id):
 
 
 def __generate_scene_id():
-    return len(scenes) * 10000000 + random.randrange(1, 1000000, 1)
+    return scenes.count * 10000000 + random.randrange(1, 1000000, 1)
