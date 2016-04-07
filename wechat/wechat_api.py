@@ -9,15 +9,21 @@ import time
 import xmltodict
 import json
 import requests
+import logging
 from functools import wraps
+
+
+LOG = logging.getLogger(__name__)
 
 
 @app.route('/weixin', methods=['GET'])
 def access_verify():
     if __verification(request.values.get('signature', ''),
                       request.values.get('timestamp', ''), request.values.get('nonce', '')):
+        LOG.debug('echostr: %s' % request.values.get('echostr', ""))
         return request.values.get('echostr', "")
     else:
+        LOG.debug('weixin error')
         return 'access verification fail'
 
 
@@ -85,8 +91,11 @@ def requires_app_auth(func):
 @app.route('/get_qrcode')
 @requires_app_auth
 def get_qrcode(app_id, app_secret):
+    LOG.debug('get scene_id')
     scene_id = get_weixin_scene_id()
+    LOG.debug('scene_id: %s' % scene_id)
     url = get_weixin_qrcode_url(scene_id, 604800, app_id, app_secret)
+    LOG.debug('url: %s' % url)
     return Response(json.dumps({'url': url, 'scene_id': scene_id}), mimetype='application/json')
 
 
